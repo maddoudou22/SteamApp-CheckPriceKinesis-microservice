@@ -103,9 +103,6 @@ Resources:
                     - kinesis:DescribeStream
                     - kinesis:ListStreams
                 Resource: !Ref kinesisStreamARN
-                    #- Fn::GetAtt:
-                    #  - SteamAppStreamFormation
-                    #  - Arn
               # Autorisation d'envoyer des SMS via SNS :
               - Effect: "Allow"
                 Action: 
