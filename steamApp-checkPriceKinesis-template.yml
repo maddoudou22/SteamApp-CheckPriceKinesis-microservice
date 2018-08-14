@@ -102,8 +102,7 @@ Resources:
                     - kinesis:GetShardIterator
                     - kinesis:DescribeStream
                     - kinesis:ListStreams
-                Resource:
-                   !Ref kinesisStreamARN
+                Resource: !Ref kinesisStreamARN
                     #- Fn::GetAtt:
                     #  - SteamAppStreamFormation
                     #  - Arn
