@@ -103,8 +103,7 @@ Resources:
                     - kinesis:DescribeStream
                     - kinesis:ListStreams
                 Resource:
-                   EventSourceArn: 
-                    - !Ref kinesisStreamARN
+                   EventSourceArn: !Ref kinesisStreamARN
                     #- Fn::GetAtt:
                     #  - SteamAppStreamFormation
                     #  - Arn
