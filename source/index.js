@@ -93,12 +93,12 @@ console.log("Parent id : " + xray_parent_id);
 						Subject: "Evolution du prix",
 						TopicArn: arnTopic
 					};
-					sns.publish(params, context.done);
-					console.log('Finis : prix revu a la baisse');
+	//				sns.publish(params, context.done);
+					console.log('Le prix de ' + profile[IDproduit].data.name + ' a ete revu a la baisse');
 					subsegment.addAnnotation('evolutionPrix', 'baisse');
 				}
 				else {
-					console.log('Finis : prix de ' + profile[IDproduit].data.name + ' inchange');
+					console.log('Le prix de ' + profile[IDproduit].data.name + ' est inchange');
 					subsegment.addAnnotation('evolutionPrix', 'RAS');
 				}
 

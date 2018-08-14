@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: deploiement de l'application Steam Check Price Evolution - Microservice "Check Price"
+    # - Role 'SteamApp-checkPrice-role-formation' : role porte par la fonction 'SteamApp-checkPrice-lambda-formation' pour lui donner les droits suivants :
+    #   - Accès total à CloudWatch
+    #   - Recuperation de messages dans SQS
+    #   - Publication de SMS via SNS
+    # - Fonction Lambda 'SteamApp-checkPrice-lambda-formation' : declenchee par la file SQS :
+    #   1) Recupere l'ID de l'application a verifier depuis le message SQS
+    #   2) Recupere le detail des informations de l'application via une requete aupres de l'API Steam
+    #   3) Verifie si le prix a evolue ou non
+    #   4) Publie un SMS via SNS si le prix a ete revu a la baisse
+    # - Topic SNS 'SteamApp-SNStopic-formation' : topic appelle par la fonction Lambda 'SteamApp-checkPrice-lambda-formation' pour publier un SMS
+    # - Souscription SNS 'SteamApp-SNSsubscription-formation' : enregistre le numero de telephone vers lequel le SMS doit etre envoye
+    
+    
+Parameters:
+
+  steamUrl:
+    Description: "URL de Steam utilisee pour recuperer le prix de chaque application"
+    Type: 'String'
+    Default: "https://store.steampowered.com/api/appdetails?appids="
+
+  kinesisStreamARN:
+    Description: "ARN du stream Kinesis utilise comme trigger de la fonction de verification de prix"
+    Type: 'String'
+# Doit etre renseigne manuellement dans ce template :
+    Default: ""
+    
+    
+  aliasName: #environnement
+    Description: "Environnement de déploiement"
+    Type: 'String'
+    Default: "dev"
+
+  deploymentType:
+    Description: "Modalite de deploiement pour la fonction"
+    Type: 'String'
+    Default: "AllAtOnce"
+
+  fileTestInput:
+    Description: "Fichier contenant le corps de la requete passee a la fonction Lambda pour son test"
+    Type: 'String'
+    Default: "test-input.json"
+
+  fileTestExpected:
+    Description: "Fichier contenant la chaine de ccaracteres attendue pour valider le test"
+    Type: 'String'
+    Default: "test-expectedResult.json"
+    
+    
+Resources:
+
+  
+  # Déclaration du stream Kinesis comme Trigger de la fonction Lambda 'SteamAppCheckPriceLambdaFormation' :
+  SteamAppStreamEventSource:
+    Type: "AWS::Lambda::EventSourceMapping"
+    DependsOn : 
+      - "SteamAppCheckPriceLambdaFormation"
+      - "SteamAppCheckPriceLambdaRoleFormation"
+    Properties: 
+      BatchSize: 10
+      EventSourceArn: !Ref kinesisStreamARN
+        #Fn::GetAtt:
+        #  - "SteamAppStreamFormation"
+        #  - "Arn"
+      FunctionName: 
+        Fn::GetAtt: 
+          - "SteamAppCheckPriceLambdaFormation"
+          - "Arn"
+      StartingPosition: "TRIM_HORIZON"
+  
+  
+  # - Role 'SteamApp-applicationList-role-formation' : role porte par la fonction 'SteamApp-applicationList-lambda-formation' pour lui donner les droits suivants :
+  #   - Accès total à CloudWatch
+  #   - Scan de la table DynamoDB
+  SteamAppCheckPriceLambdaRoleFormation: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          #
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 
+                - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "SteamApp-checkPrice-Policy-formation"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              # Autorisation de recuperer des messages depuis un stream Kinesis :
+              - Effect: "Allow"
+                Action:
+                    - kinesis:GetRecords
+                    - kinesis:GetShardIterator
+                    - kinesis:DescribeStream
+                    - kinesis:ListStreams
+                Resource:
+                    - Fn::GetAtt:
+                      - SteamAppStreamFormation
+                      - Arn
+              # Autorisation d'envoyer des SMS via SNS :
+              - Effect: "Allow"
+                Action: 
+                    - sns:Publish
+                # TODO SNS topic :
+                Resource: 'arn:aws:sns:eu-west-1:962109799108:SteamEvolutionPrix' #!GetAtt SteamAppStreamFormation.Arn
+              # Autorisation de creer des logs dans CloudWatch :
+              - Effect: "Allow"
+                Action: 
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                Resource: "*"
+
+                
+  # - Fonction Lambda 'SteamApp-checkPrice-lambda-formation' : declenchee par le stream Kinesis :
+  #   1) Recupere l'ID de l'application a verifier depuis le message Kinesis
+  #   2) Recupere le detail des informations de l'application via une requete aupres de l'API Steam
+  #   3) Verifie si le prix a evolue ou non
+  #   4) Publie un SMS via SNS si le prix a ete revu a la baisse
+  SteamAppCheckPriceLambdaFormation:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: 'SteamApp-checkPrice-lambda-formation'
+      Handler: index.handler
+      Role: !GetAtt SteamAppCheckPriceLambdaRoleFormation.Arn
+      Runtime: nodejs8.10
+      Timeout: 6
+#      CodeUri: S3://steamappformation/steamCheckPriceKinesis-Workstation.zip    // Le parametre 'CodeUri' ne doit pas etre utilise avec CodePipeline : il est genere automatiquement par CodeBuild
+      # X-Ray doit être activé manuellement via le paramètre 'ActiveTracing' dans la console de chaque fonction Lambda
+      #TracingConfig: # Activation de X-ray : supporté pour "AWS::Lambda::Function" mais pas "AWS::Serverless::Function". "AWS::Lambda::Function" n'intègre pas aussi bien les API gateway
+      #  Mode: "Active"
+        
+      Environment:
+        Variables:
+          # TODO SNS topic :
+          SNS_TOPIC_ARN: 'arn:aws:sns:eu-west-1:962109799108:SteamEvolutionPrix' #!Ref SteamApptableformation
+          STEAM_URL: !Ref steamUrl
+
+      # Definition des modalites de deploiement de la fonction :
+      AutoPublishAlias: !Ref aliasName
+      DeploymentPreference:
+        Type: !Ref deploymentType
+        Alarms:
+         - !Ref LambdaErrorAlarm
+        Hooks:
+            PreTraffic: !Ref deploiementSteamAppPreTrafficHook
+            
+
+
+  # Fonction Lambda 'CodeDeployHook_steamApp_checkPrice_preTrafficHook' appellee par CodeDeploy a chaque mise a jour de la stack (donc a chaque push dans GitHub) pour executer un test sur la fonction 'SteamApp-checkPrice-lambda-formation' qui vient d'etre deployee avant de basculer le trafic utilisateur sur cette derniere. 
+  deploiementSteamAppPreTrafficHook:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: deploiementSteamAppTrafficHook.handler
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+          # Attribution du droit d'invoquer les 'EventHook' de codeDeploy pour lui remonter le resultat du test :
+          - Effect: "Allow"
+            Action:
+              - "codedeploy:PutLifecycleEventHookExecutionStatus"
+            Resource:
+              !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentgroup:${ServerlessDeploymentApplication}/*'
+        - Version: "2012-10-17"
+          Statement:
+          # Attribution du droit d'invoquer la fonction 'SteamApp-checkPrice-lambda-formation' pour executer le test :
+          - Effect: "Allow"
+            Action:
+              - "lambda:InvokeFunction"
+            Resource: !Ref SteamAppCheckPriceLambdaFormation.Version
+        - Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action:
+              - "cloudwatch:PutMetricAlarm"
+            Resource: "*"
+      Runtime: nodejs6.10
+      FunctionName: 'CodeDeployHook_steamApp_applicationList_preTrafficHook' #Pour creer un Hook, CodeDeploy cree automatiquement un role qui ne peut executer des fonctions de Hook dont le nom  commence par 'CodeDeployHook_*' uniquement
+      DeploymentPreference:
+        Enabled: false
+      Environment:
+        Variables:
+          CurrentVersion: !Ref SteamAppCheckPriceLambdaFormation.Version
+          aliasName: !Ref aliasName
+          fileTestInput: !Ref fileTestInput
+          fileTestExpected: !Ref fileTestExpected
+          cloudformationAlarm: !Ref LambdaErrorAlarm
+
+          
+  # Creation d'une alarme permettant de verifier le nombre d'erreurs lors du deploiement de cette fonction par CodeDeploy.
+  # Si le nombre d'erreurs atteind 10 durant le deploiement, celui-ce est annule (rollback par CodeDeploy)
+  LambdaErrorAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+# A voir si la creation d'un nom + description d'alarme fonctionnent :
+      AlarmName: "steamApp_checkPrice_deploiment_alarm"
+      AlarmDescription: "Alerte sur le nombre d'erreurs remontees lors du deploiement de la nouvelle version du microservice steamApp-checkPrice"
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Unit: Count
+      Period: '60'
+      EvaluationPeriods: '1'
+      Threshold: '10'
+      ComparisonOperator: GreaterThanThreshold
+      # A voir l'utilite de la Dimension...
+      Dimensions:
+      - Name: FunctionName
+        Value: "TempName"
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
+#---- Outputs -------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
