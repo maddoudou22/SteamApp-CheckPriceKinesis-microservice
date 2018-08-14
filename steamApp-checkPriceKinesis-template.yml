@@ -20,13 +20,14 @@ Parameters:
   steamUrl:
     Description: "URL de Steam utilisee pour recuperer le prix de chaque application"
     Type: 'String'
+# Doit etre renseigne manuellement dans ce template :
     Default: "https://store.steampowered.com/api/appdetails?appids="
 
   kinesisStreamARN:
     Description: "ARN du stream Kinesis utilise comme trigger de la fonction de verification de prix"
     Type: 'String'
 # Doit etre renseigne manuellement dans ce template :
-    Default: ""
+    Default: "arn:aws:kinesis:eu-west-1:962109799108:stream/steamApp-stream"
     
     
   aliasName: #environnement
@@ -52,7 +53,6 @@ Parameters:
     
 Resources:
 
-  
   # Déclaration du stream Kinesis comme Trigger de la fonction Lambda 'SteamAppCheckPriceLambdaFormation' :
   SteamAppStreamEventSource:
     Type: "AWS::Lambda::EventSourceMapping"
