@@ -102,8 +102,8 @@ Resources:
                     - kinesis:GetShardIterator
                     - kinesis:DescribeStream
                     - kinesis:ListStreams
-                Resource: 
-                    - !Ref kinesisStreamARN
+                Resource: "*"
+              #      - !Ref kinesisStreamARN
               # Autorisation d'envoyer des SMS via SNS :
               - Effect: "Allow"
                 Action: 
