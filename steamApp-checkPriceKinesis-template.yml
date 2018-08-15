@@ -2,16 +2,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Description: deploiement de l'application Steam Check Price Evolution - Microservice "Check Price"
-    # - Role 'SteamApp-checkPrice-role-formation' : role porte par la fonction 'SteamApp-checkPrice-lambda-formation' pour lui donner les droits suivants :
+    # - Role 'SteamApp-checkPrice-role-formation' : role porte par la fonction 'SteamApp-check-Price-lambda-formation' pour lui donner les droits suivants :
     #   - Accès total à CloudWatch
-    #   - Recuperation de messages dans SQS
+    #   - Recuperation de messages dans Kinesis
     #   - Publication de SMS via SNS
-    # - Fonction Lambda 'SteamApp-checkPrice-lambda-formation' : declenchee par la file SQS :
+    # - Fonction Lambda 'SteamApp-check-Price-lambda-formation' : declenchee par la file SQS :
     #   1) Recupere l'ID de l'application a verifier depuis le message SQS
     #   2) Recupere le detail des informations de l'application via une requete aupres de l'API Steam
     #   3) Verifie si le prix a evolue ou non
     #   4) Publie un SMS via SNS si le prix a ete revu a la baisse
-    # - Topic SNS 'SteamApp-SNStopic-formation' : topic appelle par la fonction Lambda 'SteamApp-checkPrice-lambda-formation' pour publier un SMS
+    # - Topic SNS 'SteamApp-SNStopic-formation' : topic appelle par la fonction Lambda 'SteamApp-check-Price-lambda-formation' pour publier un SMS
     # - Souscription SNS 'SteamApp-SNSsubscription-formation' : enregistre le numero de telephone vers lequel le SMS doit etre envoye
     
     
@@ -134,7 +134,7 @@ Resources:
                 Resource: "*"
 
                 
-  # - Fonction Lambda 'SteamApp-checkPrice-lambda-formation' : declenchee par le stream Kinesis :
+  # - Fonction Lambda 'SteamApp-check-Price-lambda-formation' : declenchee par le stream Kinesis :
   #   1) Recupere l'ID de l'application a verifier depuis le message Kinesis
   #   2) Recupere le detail des informations de l'application via une requete aupres de l'API Steam
   #   3) Verifie si le prix a evolue ou non
@@ -142,7 +142,7 @@ Resources:
   SteamAppCheckPriceLambdaFormation:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: 'SteamApp-checkPrice-lambda-formation'
+      FunctionName: 'SteamApp-check-Price-lambda-formation'
       Handler: index.handler
       Role: !GetAtt SteamAppCheckPriceLambdaRoleFormation.Arn
       Runtime: nodejs8.10
@@ -169,7 +169,7 @@ Resources:
             
 
 
-  # Fonction Lambda 'CodeDeployHook_steamApp_checkPrice_preTrafficHook' appellee par CodeDeploy a chaque mise a jour de la stack (donc a chaque push dans GitHub) pour executer un test sur la fonction 'SteamApp-checkPrice-lambda-formation' qui vient d'etre deployee avant de basculer le trafic utilisateur sur cette derniere. 
+  # Fonction Lambda 'CodeDeployHook_steamApp_checkPrice_preTrafficHook' appellee par CodeDeploy a chaque mise a jour de la stack (donc a chaque push dans GitHub) pour executer un test sur la fonction 'SteamApp-check-Price-lambda-formation' qui vient d'etre deployee avant de basculer le trafic utilisateur sur cette derniere. 
   deploiementSteamAppPreTrafficHook:
     Type: AWS::Serverless::Function
     Properties:
@@ -185,7 +185,7 @@ Resources:
               !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentgroup:${ServerlessDeploymentApplication}/*'
         - Version: "2012-10-17"
           Statement:
-          # Attribution du droit d'invoquer la fonction 'SteamApp-checkPrice-lambda-formation' pour executer le test :
+          # Attribution du droit d'invoquer la fonction 'SteamApp-check-Price-lambda-formation' pour executer le test :
           - Effect: "Allow"
             Action:
               - "lambda:InvokeFunction"
