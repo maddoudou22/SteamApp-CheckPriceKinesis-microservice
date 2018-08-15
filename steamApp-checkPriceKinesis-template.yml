@@ -61,10 +61,8 @@ Resources:
       - "SteamAppCheckPriceLambdaRoleFormation"
     Properties: 
       BatchSize: 10
-      EventSourceArn: !Ref kinesisStreamARN
-        #Fn::GetAtt:
-        #  - "SteamAppStreamFormation"
-        #  - "Arn"
+      EventSourceArn:
+        - !Ref kinesisStreamARN
       FunctionName: 
         Fn::GetAtt: 
           - "SteamAppCheckPriceLambdaFormation"
