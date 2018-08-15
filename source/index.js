@@ -98,7 +98,7 @@ console.log("Parent id : " + xray_parent_id);
 					subsegment.addAnnotation('evolutionPrix', 'baisse');
 				}
 				else {
-					console.log('Le prix de ' + profile[IDproduit].data.name + ' est inchange');
+					console.log('Le prix de ' + profile[IDproduit].data.name + ' reste inchange');
 					subsegment.addAnnotation('evolutionPrix', 'RAS');
 				}
 
