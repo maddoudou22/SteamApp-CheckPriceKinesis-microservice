@@ -127,6 +127,12 @@ Resources:
                 # Supprimer ID du compte !
                 Resource: arn:aws:lambda:eu-west-1:962109799108:function:*
               -
+                # Utilise pour declarer un trigger d'une fonction Lambda. La ressource doit être '*' :
+                Effect: Allow
+                Action:
+                 - lambda:CreateEventSourceMapping
+                Resource: *
+              -
                 Effect: Allow
                 Action:
                  - apigateway:*
