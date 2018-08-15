@@ -23,11 +23,11 @@ Parameters:
 # Doit etre renseigne manuellement dans ce template :
     Default: "https://store.steampowered.com/api/appdetails?appids="
 
-  kinesisStreamARN:
-    Description: "ARN du stream Kinesis utilise comme trigger de la fonction de verification de prix"
-    Type: 'String'
+#  kinesisStreamARN:
+#    Description: "ARN du stream Kinesis utilise comme trigger de la fonction de verification de prix"
+#    Type: 'String'
 # Doit etre renseigne manuellement dans ce template :
-    Default: "arn:aws:kinesis:eu-west-1:962109799108:stream/steamApp-stream"
+#    Default: "arn:aws:kinesis:eu-west-1:962109799108:stream/steamApp-stream"
 
   kinesisStreamName:
     Description: "Nom du stream Kinesis utilise comme trigger de la fonction de verification de prix"
