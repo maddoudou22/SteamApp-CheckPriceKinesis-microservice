@@ -28,6 +28,12 @@ Parameters:
     Type: 'String'
 # Doit etre renseigne manuellement dans ce template :
     Default: "arn:aws:kinesis:eu-west-1:962109799108:stream/steamApp-stream"
+
+  kinesisStreamName:
+    Description: "Nom du stream Kinesis utilise comme trigger de la fonction de verification de prix"
+    Type: 'String'
+# Doit etre renseigne manuellement dans ce template :
+    Default: "steamApp-stream"
     
     
   aliasName: #environnement
@@ -73,7 +79,7 @@ Resources:
             Ref: "AWS::AccountId"
           - ":stream/"
           - 
-            Ref: "kinesisStreamARN"
+            Ref: "kinesisStreamName"
       FunctionName: 
         Fn::GetAtt: 
           - "SteamAppCheckPriceLambdaFormation"
