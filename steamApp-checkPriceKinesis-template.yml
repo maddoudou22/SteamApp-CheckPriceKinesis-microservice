@@ -62,7 +62,18 @@ Resources:
     Properties: 
       BatchSize: 10
       EventSourceArn:
-        - !Ref kinesisStreamARN
+        Fn::Join: 
+        - ""
+        - 
+          - "arn:aws:kinesis:"
+          - 
+            Ref: "AWS::Region"
+          - ":"
+          - 
+            Ref: "AWS::AccountId"
+          - ":stream/"
+          - 
+            Ref: "kinesisStreamARN"
       FunctionName: 
         Fn::GetAtt: 
           - "SteamAppCheckPriceLambdaFormation"
