@@ -197,7 +197,7 @@ Resources:
               - "cloudwatch:PutMetricAlarm"
             Resource: "*"
       Runtime: nodejs6.10
-      FunctionName: 'CodeDeployHook_steamApp_applicationList_preTrafficHook' #Pour creer un Hook, CodeDeploy cree automatiquement un role qui ne peut executer des fonctions de Hook dont le nom  commence par 'CodeDeployHook_*' uniquement
+      FunctionName: 'CodeDeployHook_steamApp_CheckPrice_preTrafficHook' #Pour creer un Hook, CodeDeploy cree automatiquement un role qui ne peut executer des fonctions de Hook dont le nom  commence par 'CodeDeployHook_*' uniquement
       DeploymentPreference:
         Enabled: false
       Environment:
