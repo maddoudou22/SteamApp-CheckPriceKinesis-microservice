@@ -1,5 +1,5 @@
 
-// Note : fonction Lambda ayant un Stream Kinesis comme trigger
+// Note : cette fonction Lambda a un Stream Kinesis comme trigger
 
 const AWSXRay = require('aws-xray-sdk');
 const AWS = require('aws-sdk');
