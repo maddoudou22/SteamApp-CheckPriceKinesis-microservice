@@ -1,11 +1,13 @@
 
 // Note : fonction Lambda ayant un Stream Kinesis comme trigger
 
-var AWS = require("aws-sdk");
 const AWSXRay = require('aws-xray-sdk');
-//var AWS = AWSXRay.captureAWS(require('aws-sdk'));
+const AWS = require('aws-sdk');
+//const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 
-AWS.config.update({region: 'eu-west-1'});
+const AWS_region = process.env.AWS_REGION;
+AWS.config.update({region: AWS_region});
+
 
 exports.handler = (event, context, callback) => {
 
