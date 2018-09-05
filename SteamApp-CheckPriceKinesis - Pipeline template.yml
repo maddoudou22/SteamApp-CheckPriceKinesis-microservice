@@ -132,6 +132,14 @@ Resources:
                 # Supprimer ID du compte !
                 Resource: !Sub arn:aws:lambda:${AWS::Region}:${accountID}:function:*
               -
+                # Utilise pour cree un topic SNS. La ressource doit être '*' :
+                Effect: Allow
+                Action:
+                  - SNS:ListTopics
+                  - SNS:CreateTopic
+                  - SNS:DeleteTopic
+                Resource: !Sub arn:aws:sns:${AWS::Region}:${accountID}:*
+              -
                 # Utilise pour declarer un trigger d'une fonction Lambda. La ressource doit être '*' :
                 Effect: Allow
                 Action:
