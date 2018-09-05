@@ -134,7 +134,8 @@ Resources:
               - Effect: "Allow"
                 Action: 
                     - sns:Publish
-                Resource: !Ref SteamAppSNSTopicformation
+                Resource: "*"
+                #Resource: !Ref SteamAppSNSTopicformation
               # Autorisation de creer des logs dans CloudWatch :
               - Effect: "Allow"
                 Action: 
