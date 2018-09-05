@@ -31,7 +31,7 @@ console.log("Parent id : " + xray_parent_id);
 	var segment = new AWSXRay.Segment('steamCheckPriceKinesis-Workstation', xray_trace_id, xray_parent_id);
 	AWSXRay.setSegment(segment);
 	  
-    const arnTopic = process.env.SNS_TOPIC_ARN; //"arn:aws:sns:eu-west-1:962109799108:SteamEvolutionPrix";  // Topic SNS utilisé pour l'envoie de SMS
+    const arnTopic = process.env.SNS_TOPIC_ARN; // Topic SNS utilisé pour l'envoie de SMS
     const URLsteam = process.env.STEAM_URL //'https://store.steampowered.com/api/appdetails?appids=';  // URL de steam contenant le détail des informatiosn de l'application
     var IDproduit = '';
 		
@@ -95,7 +95,7 @@ console.log("Parent id : " + xray_parent_id);
 						Subject: "Evolution du prix",
 						TopicArn: arnTopic
 					};
-	//				sns.publish(params, context.done);
+					sns.publish(params, context.done);
 					console.log('Le prix de ' + profile[IDproduit].data.name + ' a ete revu a la baisse');
 					subsegment.addAnnotation('evolutionPrix', 'baisse');
 				}

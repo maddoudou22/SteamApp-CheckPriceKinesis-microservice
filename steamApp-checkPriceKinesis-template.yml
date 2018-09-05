@@ -17,17 +17,17 @@ Description: deploiement de l'application Steam Check Price Evolution - Microser
     
 Parameters:
 
+  TelNumber:
+    Description: "Numéro de téléphone sur lequel le SMS de notification sera envoyé"
+    Type: 'String'
+# Doit etre renseigne manuellement dans ce template :
+    Default: "+33611733052"
+    
   steamUrl:
     Description: "URL de Steam utilisee pour recuperer le prix de chaque application"
     Type: 'String'
 # Doit etre renseigne manuellement dans ce template :
     Default: "https://store.steampowered.com/api/appdetails?appids="
-
-#  kinesisStreamARN:
-#    Description: "ARN du stream Kinesis utilise comme trigger de la fonction de verification de prix"
-#    Type: 'String'
-# Doit etre renseigne manuellement dans ce template :
-#    Default: "arn:aws:kinesis:eu-west-1:962109799108:stream/steamApp-stream"
 
   kinesisStreamName:
     Description: "Nom du stream Kinesis utilise comme trigger de la fonction de verification de prix"
@@ -59,6 +59,17 @@ Parameters:
     
 Resources:
 
+  # Topic SNS 'SteamApp-SNStopic-formation' : topic appelle par la fonction Lambda 'SteamApp-checkPrice-lambda-formation' pour publier un SMS
+  SteamAppSNSTopicformation:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: "Baisse de prix application Steam"
+      Subscription: 
+       - Endpoint: !Ref TelNumber
+         Protocol: "sms"
+      TopicName: SteamApp-SNStopic-formation
+      
+      
   # Déclaration du stream Kinesis comme Trigger de la fonction Lambda 'SteamAppCheckPriceLambdaFormation' :
   SteamAppStreamEventSource:
     Type: "AWS::Lambda::EventSourceMapping"
@@ -123,8 +134,7 @@ Resources:
               - Effect: "Allow"
                 Action: 
                     - sns:Publish
-                # TODO SNS topic :
-                Resource: 'arn:aws:sns:eu-west-1:962109799108:SteamEvolutionPrix' #!GetAtt SteamAppStreamFormation.Arn
+                Resource: !Ref SteamAppSNSTopicformation
               # Autorisation de creer des logs dans CloudWatch :
               - Effect: "Allow"
                 Action: 
@@ -155,7 +165,7 @@ Resources:
       Environment:
         Variables:
           # TODO SNS topic :
-          SNS_TOPIC_ARN: 'arn:aws:sns:eu-west-1:962109799108:SteamEvolutionPrix' #!Ref SteamApptableformation
+          SNS_TOPIC_ARN: !Ref SteamAppSNSTopicformation
           STEAM_URL: !Ref steamUrl
 
       # Definition des modalites de deploiement de la fonction :
