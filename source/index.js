@@ -79,7 +79,7 @@ console.log("Parent id : " + xray_parent_id);
 	//            var profile = responseFromFunction;
 				//console.log('Nom du produit : ' + profile[IDproduit].data.name);
 				
-				if ( profile[IDproduit].data.price_overview.initial != profile[IDproduit].data.price_overview.final ) {
+				if ( profile[IDproduit].data.price_overview.initial == profile[IDproduit].data.price_overview.final ) {
 					var eventText = 'Article : ' + profile[IDproduit].data.name + "\r\n" +
 									'Prix de référence : ' + profile[IDproduit].data.price_overview.initial + "\r\n" +
 									'Nouveau prix : ' + profile[IDproduit].data.price_overview.final + "\r\n" +
