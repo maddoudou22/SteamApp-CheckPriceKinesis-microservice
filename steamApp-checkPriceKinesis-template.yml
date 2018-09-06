@@ -131,10 +131,10 @@ Resources:
                 Resource: "*"
               #      - !Ref kinesisStreamARN
               # Autorisation d'envoyer des SMS via SNS :
-#              - Effect: "Allow"
-#                Action: 
-#                    - sns:Publish
-#                Resource: "*"
+              - Effect: "Allow"
+                Action: 
+                    - sns:Publish
+                Resource: "*"
                 #Resource: !Ref SteamAppSNSTopicformation
               # Autorisation de creer des logs dans CloudWatch :
               - Effect: "Allow"
