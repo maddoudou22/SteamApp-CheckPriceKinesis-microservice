@@ -133,9 +133,10 @@ Resources:
               # Autorisation d'envoyer des SMS via SNS :
               - Effect: "Allow"
                 Action: 
-                    - sns:Publish
-                Resource: "*"
-                #Resource: !Ref SteamAppSNSTopicformation
+                    - "sns:Publish"
+                Resource: !Ref SteamAppSNSTopicformation
+                #Resource: "*"
+                
               # Autorisation de creer des logs dans CloudWatch :
               - Effect: "Allow"
                 Action: 
