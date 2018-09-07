@@ -28,7 +28,7 @@ console.log("Parent id : " + xray_parent_id);
 
 	
     //  Création manuelle d'un segment X-ray pour pouvoir associer la trace_id et SQS à cette fonction, car impossible à associer avec le segment céé automatiquement pas X-ray à l'activation de la fonction Lambda :
-	var segment = new AWSXRay.Segment('steamCheckPriceKinesis-Workstation', xray_trace_id, xray_parent_id);
+	var segment = new AWSXRay.Segment('SteamApp-check-Price-lambda-formation', xray_trace_id, xray_parent_id);
 	AWSXRay.setSegment(segment);
 	  
     const arnTopic = process.env.SNS_TOPIC_ARN; // Topic SNS utilisé pour l'envoie de SMS

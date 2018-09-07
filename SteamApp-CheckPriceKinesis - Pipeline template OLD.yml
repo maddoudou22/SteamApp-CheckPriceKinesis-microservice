@@ -11,6 +11,12 @@ Parameters:
     Default: "SteamApp-CheckPriceKinesis-microservice"
     AllowedPattern: '[A-Za-z0-9-]+'
 
+#  accountID:
+#    Description: Identifiant du compte AWS associé au microservice
+#    Type: String
+#    Default: "962109799108"
+#    AllowedPattern: '[0-9]+'
+    
   bucketS3:
     Description: "Bucket contenant les artefacts des services pour leur integration et leur deploiement (codes source et templates des ChangeSet des services)."
     Type: 'String'
@@ -123,6 +129,8 @@ Resources:
                 Effect: Allow
                 Action:
                   - lambda:*
+                # Supprimer ID du compte !
+                #Resource: !Sub arn:aws:lambda:${AWS::Region}:${accountID}:function:*
                 Resource: 
                   - !Join
                     - ''
@@ -142,6 +150,7 @@ Resources:
                   - SNS:SetTopicAttributes
                   - SNS:Subscribe
                   - SNS:DeleteTopic
+                #Resource: !Sub arn:aws:sns:${AWS::Region}:${accountID}:*
                 Resource: 
                   - !Join
                     - ''
@@ -177,6 +186,8 @@ Resources:
                  - iam:AttachRolePolicy
                  - iam:DeleteRolePolicy
                  - iam:DetachRolePolicy
+                # Supprimer ID du compte !
+                #Resource: !Sub arn:aws:iam::${accountID}:role/*
                 Resource: 
                   - !Join
                     - ''
@@ -201,6 +212,8 @@ Resources:
                  - codedeploy:UpdateDeploymentGroup
                  - codedeploy:DeleteDeploymentGroup
                  - codedeploy:GetDeployment
+                # Supprimer ID du compte !
+                #Resource: !Sub arn:aws:codedeploy:${AWS::Region}:${accountID}:deploymentgroup:*
                 Resource: 
                   - !Join
                     - ''
@@ -215,6 +228,8 @@ Resources:
                  - codedeploy:CreateApplication
                  - codedeploy:DeleteApplication
                  - codedeploy:RegisterApplicationRevision
+                # Supprimer ID du compte !
+                #Resource: !Sub arn:aws:codedeploy:${AWS::Region}:${accountID}:application:*
                 Resource: 
                   - !Join
                     - ''
@@ -227,6 +242,8 @@ Resources:
                 Effect: Allow
                 Action:
                  - codedeploy:GetDeploymentConfig
+                # Supprimer ID du compte !
+                #Resource: !Sub arn:aws:codedeploy:${AWS::Region}:${accountID}:deploymentconfig:*
                 Resource: 
                   - !Join
                     - ''
@@ -241,6 +258,7 @@ Resources:
                  - cloudwatch:PutMetricAlarm
                  - cloudwatch:DeleteAlarms
                  - cloudwatch:DescribeAlarms
+                # Supprimer ID du compte !
                 Resource: "*"
 
                 
